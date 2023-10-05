@@ -22,7 +22,7 @@ Contents
 8. [Character set handling](#character-set-handling)
 9. [Examples](#examples)
 10. [Limitations](#limitations)
-11. [Contributing and testing](#contributing-and-testing)
+11. [Contributing](#contributing)
 12. [Useful links](#useful-links)
 
 Features
@@ -43,7 +43,7 @@ query. This is a performance enhancement.
 
 #### JOIN push-down
 `mongo_fdw` now also supports join push-down. The joins between two
-foreign tables from the same remote MySQL server are pushed to a remote
+foreign tables from the same remote MongoDB server are pushed to a remote
 server, instead of fetching all the rows for both the tables and
 performing a join locally, thereby may enhance the performance. Currently,
 joins involving only relational and arithmetic operators in join-clauses
@@ -77,15 +77,15 @@ network traffic between local PostgreSQL and remote MongoDB servers.
 
 #### GUC variables:
 
-  * `mongo_fdw.enable_order_by_pushdown`: If `true`, pushes the order by
-	operation to the foreign server, instead of fetching rows from the
-	foreign server and performing the sort locally. Default is `true`.
   * `mongo_fdw.enable_join_pushdown`: If `true`, pushes the join between two
-        foreign tables from the same foreign server, instead of fetching all the
-        rows for both the tables and performing a join locally. Default is `true`.
+    foreign tables from the same foreign server, instead of fetching all the
+    rows for both the tables and performing a join locally. Default is `true`.
   * `mongo_fdw.enable_aggregate_pushdown`: If `true`, pushes aggregate
 	operations to the foreign server, instead of fetching rows from the
 	foreign server and performing the operations locally. Default is `true`.
+  * `mongo_fdw.enable_order_by_pushdown`: If `true`, pushes the order by
+	operation to the foreign server, instead of fetching rows from the
+	foreign server and performing the sort locally. Default is `true`.
 
 Supported platforms
 -------------------
@@ -119,14 +119,6 @@ Usage
 
   Controls whether `mongo_fdw` uses exact rows from
     remote collection to obtain cost estimates.
-
-- **enable_order_by_pushdown** as *boolean*, optional, default `true`
-
-  If `true`, pushes the ORDER BY clause to theforeign server instead of
-    performing a sort locally. This option can also be set for an individual
-    table, and if any of the tables involved in the query has set it to
-    false then the ORDER BY will not be pushed down. The table-level value
-    of the option takes precedence over the server-level option value.
 
 The following options are _only supported with meta driver_:
 
@@ -196,6 +188,14 @@ The following options are _only supported with meta driver_:
 	table-level value of the option takes precedence over the server-level
 	option value.
 
+- **enable_order_by_pushdown** as *boolean*, optional, default `true`
+
+  If `true`, pushes the ORDER BY clause to the foreign server instead of
+    performing a sort locally. This option can also be set for an individual
+    table, and if any of the tables involved in the query has set it to
+    false then the ORDER BY will not be pushed down. The table-level value
+    of the option takes precedence over the server-level option value.
+
 ## CREATE USER MAPPING options
 
 `mongo_fdw` accepts the following options via the `CREATE USER MAPPING`
@@ -227,11 +227,11 @@ command:
   Similar to the server-level option, but can be
     configured at table level as well.
 
-- **enable_aggregate_pushdown** as *boolean*, optional, default corresponding servel-lelel value
+- **enable_aggregate_pushdown** as *boolean*, optional, default `true`
 
   Similar to the server-level option, but can be configured at table level as well.
 
-- **enable_order_by_pushdown** as *boolean*, optional, default corresponding servel-lelel value
+- **enable_order_by_pushdown** as *boolean*, optional, default `true`
 
   Similar to the server-level option, but can be configured at table level as well.
 
@@ -265,7 +265,7 @@ All transformation rules and problems **yet not described**.
 Generated columns
 -----------------
 
-`mongo_fdw` does't provides support for PostgreSQL's generated
+`mongo_fdw` doesn't provides support for PostgreSQL's generated
 columns (PostgreSQL 12+).
 
 **Behaviour with generated columns yet not tested and not described**.
@@ -307,28 +307,26 @@ execution plans for a query, just run `EXPLAIN`.
 Once for a database you need, as PostgreSQL superuser.
 
 ```sql
-	CREATE EXTENSION mongo_fdw;
+CREATE EXTENSION mongo_fdw;
 ```
 
 ### Create a foreign server with appropriate configuration:
 
-Once for a foreign datasource you need, as PostgreSQL superuser.
+Once for a foreign data source you need, as PostgreSQL superuser.
 
 ```sql
-    	CREATE SERVER "MongoDB server"
-	FOREIGN DATA WRAPPER mongo_fdw
-	OPTIONS (
-          address '127.0.0.1',
-          port '27017'
-	);
+CREATE SERVER "MongoDB server" FOREIGN DATA WRAPPER mongo_fdw OPTIONS (
+  address '127.0.0.1',
+  port '27017'
+);
 ```
 
 ### Grant usage on foreign server to normal user in PostgreSQL:
 
-Once for a normal user (non-superuser) in PostgreSQL, as PostgreSQL superuser. It is a good idea to use a superuser only where really necessary, so let's allow a normal user to use the foreign server (this is not required for the example to work, but it's secirity recomedation).
+Once for a normal user (non-superuser) in PostgreSQL, as PostgreSQL superuser. It is a good idea to use a superuser only where really necessary, so let's allow a normal user to use the foreign server (this is not required for the example to work, but it's security recommendation).
 
 ```sql
-	GRANT USAGE ON FOREIGN SERVER "MongoDB server" TO pguser;
+GRANT USAGE ON FOREIGN SERVER "MongoDB server" TO pguser;
 ```
 Where `pguser` is a sample user for works with foreign server (and foreign tables).
 
@@ -336,43 +334,36 @@ Where `pguser` is a sample user for works with foreign server (and foreign table
 
 Create an appropriate user mapping:
 ```sql
-    	CREATE USER MAPPING
-	FOR pguser
-	SERVER "MongoDB server"
-    	OPTIONS (
-	  username 'mongo_user',
-	  password 'mongo_pass'
-	);
+CREATE USER MAPPING FOR pguser SERVER "MongoDB server" OPTIONS (
+  username 'mongo_user',
+  password 'mongo_pass'
+);
 ```
 Where `pguser` is a sample user for works with foreign server (and foreign tables).
 
 ### Create foreign table
-All `CREATE FOREIGN TABLE` SQL commands can be executed as a normal PostgreSQL user if there were correct `GRANT USAGE ON FOREIGN SERVER`. No need PostgreSQL supersuer for secirity reasons but also works with PostgreSQL supersuer.
+All `CREATE FOREIGN TABLE` SQL commands can be executed as a normal PostgreSQL user if there were correct `GRANT USAGE ON FOREIGN SERVER`. No need of PostgreSQL supersuer for security reasons but also works with PostgreSQL supersuer.
 
 Create a foreign table referencing the MongoDB collection:
 
 ```sql
-	-- Note: first column of the table must be "_id" of type "name".
-	CREATE FOREIGN TABLE warehouse (
-	  _id name,
-	  warehouse_id int,
-	  warehouse_name text,
-	  warehouse_created timestamptz
-	)
-	SERVER "MongoDB server"
-	OPTIONS (
-	  database 'db',
-	  collection 'warehouse'
-	);
+-- Note: first column of the table must be "_id" of type "name".
+CREATE FOREIGN TABLE warehouse (
+  _id name,
+  warehouse_id int,
+  warehouse_name text,
+  warehouse_created timestamptz
+) SERVER "MongoDB server" OPTIONS (
+    database 'db',
+	collection 'warehouse'
+);
 ```
 
 ### Typical examples with [MongoDB][1]'s equivalent statements.
 
 #### `SELECT`
 ```sql
-	SELECT *
-	  FROM warehouse
-	 WHERE warehouse_id = 1;
+SELECT * FROM warehouse WHERE warehouse_id = 1;
 ```
 ```
            _id            | warehouse_id | warehouse_name |     warehouse_created
@@ -412,9 +403,7 @@ db.warehouse.insert
 ```
 #### `DELETE`
 ```sql
-DELETE
-  FROM warehouse
- WHERE warehouse_id = 2;
+DELETE FROM warehouse WHERE warehouse_id = 2;
 ```
 ```
 db.warehouse.remove
@@ -426,9 +415,7 @@ db.warehouse.remove
 ```
 #### `UPDATE`
 ```sql
-UPDATE warehouse
-   SET warehouse_name = 'UPS_NEW'
- WHERE warehouse_id = 1;
+UPDATE warehouse SET warehouse_name = 'UPS_NEW' WHERE warehouse_id = 1;
 ```
 ```
 db.warehouse.update
@@ -471,31 +458,18 @@ Limitations
     `NAMEDATALEN` constant in `src/include/pg_config_manual.h`, compile,
     and re-install.
 
-Contributing and testing
-------------------------
+Contributing
+------------
 
 Have a fix for a bug or an idea for a great new feature? Great! Check
 out the contribution guidelines [here][3].
-
-### Running regression test.
-Run `mongodb_init.sh` file to load required collections.
-```sh
-source mongodb_init.sh
-```
-Finally, run regression.
-```sh
-make USE_PGXS=1 installcheck
-```
-However, make sure to set the `MONGO_HOST`, `MONGO_PORT`, `MONGO_USER_NAME`,
-and `MONGO_PWD` environment variables correctly. The default settings can
-be found in the `mongodb_init.sh` script.
 
 Useful links
 ------------
 
 ### Source code
 
-Reference FDW realisation, `postgres_fdw`
+Reference FDW realization, `postgres_fdw`
  - https://git.postgresql.org/gitweb/?p=postgresql.git;a=tree;f=contrib/postgres_fdw;hb=HEAD
 
 ### General FDW Documentation
