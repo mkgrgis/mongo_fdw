@@ -227,11 +227,11 @@ command:
   Similar to the server-level option, but can be
     configured at table level as well.
 
-- **enable_aggregate_pushdown** as *boolean*, optional, default corresponding servel-lelel value
+- **enable_aggregate_pushdown** as *boolean*, optional, default corresponding server-level value
 
   Similar to the server-level option, but can be configured at table level as well.
 
-- **enable_order_by_pushdown** as *boolean*, optional, default corresponding servel-lelel value
+- **enable_order_by_pushdown** as *boolean*, optional, default corresponding server-level value
 
   Similar to the server-level option, but can be configured at table level as well.
 
