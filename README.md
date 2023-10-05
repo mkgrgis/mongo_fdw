@@ -43,7 +43,7 @@ query. This is a performance enhancement.
 
 #### JOIN push-down
 `mongo_fdw` now also supports join push-down. The joins between two
-foreign tables from the same remote MySQL server are pushed to a remote
+foreign tables from the same remote MongoDB server are pushed to a remote
 server, instead of fetching all the rows for both the tables and
 performing a join locally, thereby may enhance the performance. Currently,
 joins involving only relational and arithmetic operators in join-clauses
@@ -81,8 +81,8 @@ network traffic between local PostgreSQL and remote MongoDB servers.
 	operation to the foreign server, instead of fetching rows from the
 	foreign server and performing the sort locally. Default is `true`.
   * `mongo_fdw.enable_join_pushdown`: If `true`, pushes the join between two
-        foreign tables from the same foreign server, instead of fetching all the
-        rows for both the tables and performing a join locally. Default is `true`.
+	foreign tables from the same foreign server, instead of fetching all the
+	rows for both the tables and performing a join locally. Default is `true`.
   * `mongo_fdw.enable_aggregate_pushdown`: If `true`, pushes aggregate
 	operations to the foreign server, instead of fetching rows from the
 	foreign server and performing the operations locally. Default is `true`.
@@ -265,7 +265,7 @@ All transformation rules and problems **yet not described**.
 Generated columns
 -----------------
 
-`mongo_fdw` does't provides support for PostgreSQL's generated
+`mongo_fdw` doesn't provides support for PostgreSQL's generated
 columns (PostgreSQL 12+).
 
 **Behaviour with generated columns yet not tested and not described**.
@@ -312,7 +312,7 @@ Once for a database you need, as PostgreSQL superuser.
 
 ### Create a foreign server with appropriate configuration:
 
-Once for a foreign datasource you need, as PostgreSQL superuser.
+Once for a foreign data source you need, as PostgreSQL superuser.
 
 ```sql
     	CREATE SERVER "MongoDB server"
@@ -325,7 +325,7 @@ Once for a foreign datasource you need, as PostgreSQL superuser.
 
 ### Grant usage on foreign server to normal user in PostgreSQL:
 
-Once for a normal user (non-superuser) in PostgreSQL, as PostgreSQL superuser. It is a good idea to use a superuser only where really necessary, so let's allow a normal user to use the foreign server (this is not required for the example to work, but it's secirity recomedation).
+Once for a normal user (non-superuser) in PostgreSQL, as PostgreSQL superuser. It is a good idea to use a superuser only where really necessary, so let's allow a normal user to use the foreign server (this is not required for the example to work, but it's security recommendation).
 
 ```sql
 	GRANT USAGE ON FOREIGN SERVER "MongoDB server" TO pguser;
@@ -347,7 +347,7 @@ Create an appropriate user mapping:
 Where `pguser` is a sample user for works with foreign server (and foreign tables).
 
 ### Create foreign table
-All `CREATE FOREIGN TABLE` SQL commands can be executed as a normal PostgreSQL user if there were correct `GRANT USAGE ON FOREIGN SERVER`. No need PostgreSQL supersuer for secirity reasons but also works with PostgreSQL supersuer.
+All `CREATE FOREIGN TABLE` SQL commands can be executed as a normal PostgreSQL user if there were correct `GRANT USAGE ON FOREIGN SERVER`. No need of PostgreSQL supersuer for security reasons but also works with PostgreSQL supersuer.
 
 Create a foreign table referencing the MongoDB collection:
 
@@ -495,7 +495,7 @@ Useful links
 
 ### Source code
 
-Reference FDW realisation, `postgres_fdw`
+Reference FDW realization, `postgres_fdw`
  - https://git.postgresql.org/gitweb/?p=postgresql.git;a=tree;f=contrib/postgres_fdw;hb=HEAD
 
 ### General FDW Documentation
