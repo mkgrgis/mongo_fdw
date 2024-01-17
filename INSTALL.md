@@ -1,17 +1,19 @@
 Notes about installation Mongo Foreign Data Wrapper
 ===================================================
 
-To compile the [MongoDB][1] foreign data wrapper for [PostgreSQL](https://www.postgresql.org/), `mongo-c` and `json-c`
-libraries are needed. To build and install `mongo-c` and `json-c` libraries, there
-are two ways. You can either use script `autogen.sh` or you can manually
+To compile the [MongoDB][1] foreign data wrapper for [PostgreSQL](https://www.postgresql.org/),
+`mongo-c` and `json-c` libraries are needed. To build and install `mongo-c` and `json-c`
+libraries, there are two ways. You can either use script `autogen.sh` or you can manually
 perform all required steps listed.
 
-### Notes about new MongoDB C Driver support
-This enhancement is to add a new [MongoDB][1]' C driver. The current
-implementation is based on the legacy driver of MongoDB. But
-[MongoDB][1] is provided completely new library for driver called
-MongoDB's meta driver. Added support for the same. Now compile time
-option is available to use legacy and meta driver.
+### Notes about MongoDB `meta` C Driver support
+
+The current implementation is based on the driver version 1.17.3 of MongoDB.
+
+[MongoDB][1] provided completely new library for driver called
+MongoDB's meta driver and also old driver called legacy.
+Command sequence for installing both legacy and meta drivers
+is similar with small differences. You can select driver by compile time option.
 
 In order to use MongoDB driver 1.17.0+, take the following steps:
 
@@ -51,6 +53,7 @@ meta driver accordingly.
 ## Steps for manual installation
 ### mongo-c
 #### meta driver
+
 1. Download and extract source code of mongoc driver for version `1.17.3`
 
 	```sh

@@ -77,15 +77,15 @@ network traffic between local PostgreSQL and remote MongoDB servers.
 
 #### GUC variables:
 
-  * `mongo_fdw.enable_order_by_pushdown`: If `true`, pushes the order by
-	operation to the foreign server, instead of fetching rows from the
-	foreign server and performing the sort locally. Default is `true`.
   * `mongo_fdw.enable_join_pushdown`: If `true`, pushes the join between two
-	foreign tables from the same foreign server, instead of fetching all the
-	rows for both the tables and performing a join locally. Default is `true`.
+    foreign tables from the same foreign server, instead of fetching all the
+    rows for both the tables and performing a join locally. Default is `true`.
   * `mongo_fdw.enable_aggregate_pushdown`: If `true`, pushes aggregate
 	operations to the foreign server, instead of fetching rows from the
 	foreign server and performing the operations locally. Default is `true`.
+  * `mongo_fdw.enable_order_by_pushdown`: If `true`, pushes the order by
+	operation to the foreign server, instead of fetching rows from the
+	foreign server and performing the sort locally. Default is `true`.
 
 Supported platforms
 -------------------
@@ -96,7 +96,7 @@ reasonably POSIX-compliant system.
 Installation
 ------------
 
-About script or manual installation, `mongo-c`, legacy and `meta` driver please read the following [instructions in INSTALL.md](INSTALL.md).
+About script or manual installation, `mongo-c` driver please read the following [instructions in INSTALL.md](INSTALL.md).
 
 If you run into any issues, please [let us know][2].
 
@@ -119,14 +119,6 @@ Usage
 
   Controls whether `mongo_fdw` uses exact rows from
     remote collection to obtain cost estimates.
-
-- **enable_order_by_pushdown** as *boolean*, optional, default `true`
-
-  If `true`, pushes the ORDER BY clause to theforeign server instead of
-    performing a sort locally. This option can also be set for an individual
-    table, and if any of the tables involved in the query has set it to
-    false then the ORDER BY will not be pushed down. The table-level value
-    of the option takes precedence over the server-level option value.
 
 The following options are _only supported with meta driver_:
 
@@ -196,6 +188,15 @@ The following options are _only supported with meta driver_:
 	table-level value of the option takes precedence over the server-level
 	option value.
 
+- **enable_order_by_pushdown** as *boolean*, optional, default `true`
+
+  If `true`, pushes the ORDER BY clause to the foreign server instead of
+    performing a sort locally. This option can also be set for an individual
+    table, and if any of the tables involved in the query has set it to
+    false then the ORDER BY will not be pushed down. The table-level value
+    of the option takes precedence over the server-level option value.lue of the option takes precedence over the server-level
+	option value.
+
 ## CREATE USER MAPPING options
 
 `mongo_fdw` accepts the following options via the `CREATE USER MAPPING`
@@ -258,9 +259,11 @@ functions, `mongo_fdw` provides the following user-callable utility functions:
 Identifier case handling
 ------------------------
 
-PostgreSQL folds identifiers to lower case by default, MongoDB use JSON notation of identifiers.
+PostgreSQL folds identifiers to lower case by default, MongoDB use JSON notation of
+identifiers without any default character case transformations.
 
-All transformation rules and problems **yet not described**.
+Hence if the BSON document key contains uppercase letters or occurs within a nested
+document, PostgreSQLrequires the corresponding column names to be quoted.
 
 Generated columns
 -----------------
@@ -462,10 +465,6 @@ ANALYZE warehouse;
 Limitations
 -----------
 
-  - If the BSON document key contains uppercase letters or occurs within
-    a nested document, ``mongo_fdw`` requires the corresponding column names
-    to be declared in double quotes.
-
   - Note that PostgreSQL limits column names to 63 characters by
     default. If you need column names that are longer, you can increase the
     `NAMEDATALEN` constant in `src/include/pg_config_manual.h`, compile,
@@ -524,7 +523,7 @@ also support `mongo_fdw`.
 
 License
 -------
-Portions Copyright (c) 2004-2023, EnterpriseDB Corporation.
+Portions Copyright (c) 2004-2024, EnterpriseDB Corporation.
 Portions Copyright © 2012–2014 Citus Data, Inc.
 
 This program is free software: you can redistribute it and/or modify it
