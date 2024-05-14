@@ -5,7 +5,7 @@ This PostgreSQL extension implements a Foreign Data Wrapper (FDW) for
 [MongoDB][1].
 
 Please note that this version of mongo_fdw works with PostgreSQL and EDB
-Postgres Advanced Server 11, 12, 13, 14, 15 and 16.
+Postgres Advanced Server 12, 13, 14, 15 and 16.
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg" align="center" height="100" alt="PostgreSQL"/>	+	<img src="https://www.tutorialsteacher.com/Content/images/home/mongodb.svg" align="center" height="100" alt="MongoDB"/>
 
@@ -492,6 +492,10 @@ be found in the `mongodb_init.sh` script.
 Useful links
 ------------
 
+### Documentation
+
+ - For details, please refer to [mongo_fdw documentation][5].
+
 ### Source code
 
 Reference FDW realization, `postgres_fdw`
@@ -537,3 +541,4 @@ See the [`LICENSE`][4] file for full details.
 [2]: https://github.com/enterprisedb/mongo_fdw/issues/new
 [3]: CONTRIBUTING.md
 [4]: LICENSE
+[5]: https://www.enterprisedb.com/docs/mongo_data_adapter/latest/
